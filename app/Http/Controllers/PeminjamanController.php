@@ -8,6 +8,7 @@ use App\Models\Peminjaman;
 use App\Models\Barang;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PeminjamanController extends Controller
 {
@@ -25,6 +26,16 @@ class PeminjamanController extends Controller
         $peminjaman = Peminjaman::with('barang')->findOrFail($id);
         $barang = $peminjaman->barang;
 
+        // Pastikan barang ditemukan
+        if (!$barang) {
+            Log::error("Barang tidak ditemukan untuk peminjaman ID: {$id}");
+            return redirect()->route('peminjaman.index')
+                ->with('error', 'Barang tidak ditemukan!');
+        }
+
+        // Log informasi barang
+        Log::info("Barang ditemukan: ID={$barang->id}, Nama={$barang->nama_barang}, Stok={$barang->stok}");
+
         // Cek apakah stok mencukupi
         if ($barang->stok < $peminjaman->jumlah) {
             return redirect()->route('peminjaman.index')
@@ -39,11 +50,29 @@ class PeminjamanController extends Controller
             $peminjaman->status = 'approved';
 
             // Kurangi stok barang
-            $barang->stok -= $peminjaman->jumlah;
+            $stokAwal = $barang->stok;
+            $stokBaru = $stokAwal - $peminjaman->jumlah;
+
+            // Coba update langsung via query builder untuk memastikan
+            $updated = DB::table('barangs')
+                ->where('id', $barang->id)
+                ->update(['stok' => $stokBaru]);
+
+            Log::info("Update stok via query builder: " . ($updated ? "Berhasil ({$updated} baris)" : "Gagal"));
+
+            // Update juga model untuk konsistensi
+            $barang->stok = $stokBaru;
+
+            // Log perubahan stok untuk debugging
+            Log::info("Peminjaman ID: {$peminjaman->id} - Stok barang {$barang->nama_barang} berkurang dari {$stokAwal} menjadi {$barang->stok}");
 
             // Simpan perubahan
-            $barang->save();
-            $peminjaman->save();
+            $barangSaved = $barang->save();
+            $peminjamanSaved = $peminjaman->save();
+
+            // Log hasil save
+            Log::info("Hasil save - Barang: " . ($barangSaved ? 'Berhasil' : 'Gagal') .
+                      ", Peminjaman: " . ($peminjamanSaved ? 'Berhasil' : 'Gagal'));
 
             DB::commit();
 

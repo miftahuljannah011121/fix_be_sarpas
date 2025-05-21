@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class pengembalian extends Model
+class Pengembalian extends Model
 {
     use HasFactory;
 
-    protected $table = 'pengembalian';
+    protected $table = 'pengembalians';
 
     protected $fillable = [
-        'peminjaman_id', 
-        'tanggal_pengembalian', 
-        'jumlah_dikembalikan', 
-        'status_pengembalian', 
-        'keterangan', 
+        'peminjaman_id',
+        'tanggal_pengembalian',
+        'jumlah_dikembalikan',
+        'status_pengembalian',
+        'keterangan',
         'denda'
     ];
 

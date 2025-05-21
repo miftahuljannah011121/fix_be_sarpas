@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PengembalianController;
 
 
 /*S
@@ -40,6 +41,13 @@ Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('b
 Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
 Route::post('/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
 Route::post('/peminjaman/{id}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
+
+// Pengembalian routes
+Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
+Route::post('/pengembalian/{id}/approve', [PengembalianController::class, 'approve'])->name('pengembalian.approve');
+Route::post('/pengembalian/{id}/reject', [PengembalianController::class, 'reject'])->name('pengembalian.reject');
+Route::get('/pengembalian/{id}/mark-damage', [PengembalianController::class, 'markDamageForm'])->name('pengembalian.markDamage.form');
+Route::post('/pengembalian/{id}/mark-damage', [PengembalianController::class, 'markDamage'])->name('pengembalian.markDamage');
 });
 
 

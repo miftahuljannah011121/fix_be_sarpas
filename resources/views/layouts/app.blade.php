@@ -63,7 +63,8 @@
                 <a href="{{ route('barang.index') }}" class="{{ request()->is('barang*') ? 'active' : '' }}">Barang</a>
                 <a href="{{ route('peminjaman.index') }}"
                     class="{{ request()->is('peminjaman*') ? 'active' : '' }}">Peminjaman</a>
-                <a href="#">Pengembalian</a>
+                <a href="{{ route('pengembalian.index') }}"
+                    class="{{ request()->is('pengembalian*') ? 'active' : '' }}">Pengembalian</a>
                 <a href="#" class="text-danger">Logout</a>
             </div>
 
