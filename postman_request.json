@@ -1,0 +1,8 @@
+{
+  "user_id": 1,
+  "barang_id": 1,
+  "nama_peminjam": "John Doe",
+  "alasan_meminjam": "Digunakan untuk kegiatan workshop",
+  "jumlah": 2,
+  "tanggal_pinjam": "2023-11-15"
+}
