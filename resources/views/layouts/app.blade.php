@@ -15,38 +15,35 @@
         }
 
         .sidebar {
-            min-height: 100vh;
-            background-color: #212529;
-        }
+    min-height: 100vh;
+    background-color:rgb(189, 2, 152);
+}
 
-        .sidebar a {
-            color: #e9ecef;
-            padding: 10px 15px;
-            display: block;
-            text-decoration: none;
-            border-left: 3px solid transparent;
-            margin-bottom: 2px;
-            font-size: 14px;
-        }
+.sidebar a {
+    color: #ffffff;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    font-size: 15px;
+    transition: background-color 0.2s, border-left-color 0.2s;
+}
 
-        .sidebar a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
+.sidebar a:hover {
+    background-color: rgb(159, 21, 120);
+}
 
-        .sidebar a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-left-color: #0d6efd;
-        }
+.sidebar a.active {
+    background-color:rgb(255, 0, 191);
+    border-left-color: #0d6efd;
+    font-weight: bold;
+}
 
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
+.sidebar a i {
+    font-size: 18px;
+}
 
-        .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-        }
     </style>
 
 

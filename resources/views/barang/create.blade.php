@@ -1,8 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .card {
+            background-color: #fff0f8;
+            color: #5a0050;
+            border: none;
+        }
+
+        .card-header {
+            background-color: rgb(189, 2, 152);
+            color: #fff;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #ce68ae;
+        }
+
+        .btn-success {
+            background-color: rgb(255, 0, 191);
+            border: none;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: rgb(220, 0, 160);
+        }
+
+        .btn-secondary {
+            background-color: #e0d0dc;
+            color: #5a0050;
+        }
+
+        .alert-danger {
+            background-color: #ffd1ec;
+            color: #5a0050;
+        }
+    </style>
+
     <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header">
             <h4 class="mb-0">Tambah Barang</h4>
         </div>
         <div class="card-body">
@@ -38,8 +75,8 @@
 
                 <div class="mb-3">
                     <label for="stok" class="form-label">Stok</label>
-                    <input type="number" class="form-control" id="stok" name="stok" value="{{ old('stok') }}" min="0"
-                        required>
+                    <input type="number" class="form-control" id="stok" name="stok"
+                        value="{{ old('stok') }}" min="0" required>
                 </div>
 
                 <div class="mb-3">

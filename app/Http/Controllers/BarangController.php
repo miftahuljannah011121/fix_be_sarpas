@@ -5,63 +5,90 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 class BarangController extends Controller
 {
+    // Tampilkan semua barang
     public function index()
     {
         $barangs = Barang::with('kategori')->get();
         return view('barang.index', compact('barangs'));
     }
 
+    // Tampilkan form tambah barang
     public function create()
     {
         $kategoris = Kategori::all();
         return view('barang.create', compact('kategoris'));
     }
 
+    // Simpan barang baru
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nama_barang' => 'required',
-            'kategori_id' => 'required',
-            'stok' => 'required|integer',
-            'foto' => 'image|mimes:jpeg,png,jpg|max:2048'
+        $request->validate([
+            'nama_barang' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'stok' => 'required|integer|min:0',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        $data = $request->only(['nama_barang', 'kategori_id', 'stok']);
+
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('foto_barang', 'public');
+            $data['foto'] = $request->file('foto')->store('uploads', 'public'); // Simpan ke storage/app/public/uploads
         }
 
         Barang::create($data);
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan');
     }
 
-    public function edit(Barang $barang)
+    // Tampilkan form edit barang
+    public function edit($id)
     {
+        $barang = Barang::findOrFail($id);
         $kategoris = Kategori::all();
         return view('barang.edit', compact('barang', 'kategoris'));
     }
 
-    public function update(Request $request, Barang $barang)
+    // Update barang
+    public function update(Request $request, $id)
     {
-        $data = $request->validate([
-            'nama_barang' => 'required',
-            'kategori_id' => 'required',
-            'stok' => 'required|integer',
-            'foto' => 'image|mimes:jpeg,png,jpg|max:2048'
+        $request->validate([
+            'nama_barang' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'stok' => 'required|integer|min:0',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        $barang = Barang::findOrFail($id);
+        $data = $request->only(['nama_barang', 'kategori_id', 'stok']);
+
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('foto_barang', 'public');
+            // Hapus foto lama jika ada
+            if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
+                Storage::disk('public')->delete($barang->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('uploads', 'public');
         }
 
         $barang->update($data);
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil diupdate!');
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil diupdate');
     }
 
-    public function destroy(Barang $barang)
+    // Hapus barang
+    public function destroy($id)
     {
+        $barang = Barang::findOrFail($id);
+
+        if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
+            Storage::disk('public')->delete($barang->foto);
+        }
+
         $barang->delete();
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus');
     }
 }

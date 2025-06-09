@@ -7,6 +7,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
+
 
 
 /*S
@@ -20,6 +23,11 @@ use App\Http\Controllers\PengembalianController;
 |
 */
 
+Route::middleware(['auth'])->group(function () {
+    Route::middleware('admin')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -49,6 +57,8 @@ Route::post('/pengembalian/{id}/reject', [PengembalianController::class, 'reject
 Route::get('/pengembalian/{id}/mark-damage', [PengembalianController::class, 'markDamageForm'])->name('pengembalian.markDamage.form');
 Route::post('/pengembalian/{id}/mark-damage', [PengembalianController::class, 'markDamage'])->name('pengembalian.markDamage');
 });
+
+
 
 
 

@@ -17,6 +17,7 @@ class PeminjamanController extends Controller
         $peminjamans = Peminjaman::with(['barang', 'user'])
             ->orderByDesc('created_at')
             ->get();
+        
 
         return view('peminjaman.index', compact('peminjamans'));
     }
@@ -57,6 +58,8 @@ class PeminjamanController extends Controller
             $updated = DB::table('barangs')
                 ->where('id', $barang->id)
                 ->update(['stok' => $stokBaru]);
+
+                
 
             Log::info("Update stok via query builder: " . ($updated ? "Berhasil ({$updated} baris)" : "Gagal"));
 

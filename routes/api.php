@@ -18,16 +18,21 @@ use App\Http\Controllers\Api\PengembalianController;
 |
 */
 
-route::post('/login', [AuthController::class, 'login']);
 
-route::prefix('v1')->group(function () {
-    // Barang routes
-    route::get('/barang', [BarangController::class, 'index']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+    
 
-    // Peminjaman routes
-    route::post('/peminjaman', [PeminjamanController::class, 'store']);
-    route::get('/peminjaman', [PeminjamanController::class, 'index']);
+Route::get('/barang', [BarangController::class, 'index']);
 
-    // Pengembalian routes
-    route::post('/pengembalian', [PengembalianController::class, 'store']);
+Route::get('/peminjaman', [PeminjamanController::class, 'index']);       // Semua peminjaman (admin)
+Route::get('/peminjaman/user', [PeminjamanController::class, 'getByUser']);  // Peminjaman user login
+Route::post('/peminjaman', [PeminjamanController::class, 'store']);      // Buat peminjaman baru
+
+// Semua route peminjaman dengan middleware auth:sanctum (sesuaikan jika kamu pakai auth lain)
+Route::middleware('auth:sanctum')->group(function () {
+
 });
+
+
+

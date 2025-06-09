@@ -3,77 +3,90 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Peminjaman;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Models\Barang;
 
 class PeminjamanController extends Controller
 {
-
-    
     public function store(Request $request)
     {
-        // Validasi input dari mobile
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'barang_id' => 'required|exists:barangs,id',
             'nama_peminjam' => 'required|string|max:255',
-            'alasan_meminjam' => 'required|string',
+            'alasan_meminjam' => 'required|string|max:500',
             'jumlah' => 'required|integer|min:1',
             'tanggal_pinjam' => 'required|date',
-            'status' => 'in:pending,approved,rejected,returned',
+            'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
-        DB::beginTransaction();
+        $validated['status'] = 'pending'; // Status default
 
-        try {
-            // Menyimpan data peminjaman
-            $peminjaman = Peminjaman::create([
-                'user_id' => $request->user_id,
-                'barang_id' => $request->barang_id,
-                'nama_peminjam' => $request->nama_peminjam,
-                'alasan_meminjam' => $request->alasan_meminjam,
-                'jumlah' => $request->jumlah,
-                'tanggal_pinjam' => $request->tanggal_pinjam,
-                'status' => 'pending', 
-            ]);
+        $barang = Barang::findOrFail($validated['barang_id']);
 
-            DB::commit();
-
+        // Cek stok barang
+        if ($barang->stok < $validated['jumlah']) {
             return response()->json([
-                'success' => true,
-                'message' => 'Peminjaman berhasil dibuat.',
-                'data' => [
-                    'id' => $peminjaman->id,
-                    'user_id' => $peminjaman->user_id,
-                    'barang_id' => $peminjaman->barang_id,
-                    'nama_peminjam' => $peminjaman->nama_peminjam,
-                    'alasan_meminjam' => $peminjaman->alasan_meminjam,
-                    'jumlah' => $peminjaman->jumlah,
-                    'tanggal_pinjam' => $peminjaman->tanggal_pinjam,
-                    'status' => $peminjaman->status,
-                ]
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan peminjaman.',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Stok barang tidak mencukupi',
+            ], 400);
         }
+
+        // Kurangi stok barang
+        $barang->stok -= $validated['jumlah'];
+        $barang->save();
+
+        // Simpan data peminjaman
+        $peminjaman = Peminjaman::create($validated);
+
+        // Load relasi barang dan user agar lengkap saat response
+        $peminjaman->load(['barang', 'user']);
+
+        return response()->json([
+            'message' => 'Peminjaman berhasil ditambahkan',
+            'data' => [
+                'id' => $peminjaman->id,
+                'nama_peminjam' => $peminjaman->nama_peminjam,
+                'alasan_meminjam' => $peminjaman->alasan_meminjam,
+                'jumlah' => $peminjaman->jumlah,
+                'tanggal_pinjam' => $peminjaman->tanggal_pinjam,
+                'tanggal_kembali' => $peminjaman->tanggal_kembali,
+                'status' => $peminjaman->status,
+                'barang' => [
+                    'id' => $peminjaman->barang->id,
+                    'namaBarang' => $peminjaman->barang->namaBarang,
+                    'stok' => $peminjaman->barang->stok,
+                ],
+                'user' => [
+                    'id' => $peminjaman->user->id,
+                    'name' => $peminjaman->user->name,
+                ],
+            ],
+        ], 201);
     }
-    
-    public function index(Request $request) {
-        $peminjaman = Peminjaman::with('barang')
-            ->orderByDesc('created_at')
+
+    // Ambil data peminjaman user yang sedang login
+    public function getByUser(Request $request)
+    {
+        $user = $request->user();
+        $peminjamans = Peminjaman::with('barang')
+            ->where('user_id', $user->id)
             ->get();
-    
+
         return response()->json([
             'success' => true,
-            'data' => $peminjaman
-        ]);     
+            'data' => $peminjamans,
+        ]);
     }
 
-    
+    // Ambil semua data peminjaman (misal untuk admin)
+    public function index()
+    {
+        $peminjamans = Peminjaman::with(['barang', 'user'])->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $peminjamans,
+        ]);
+    }
 }
