@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BarangController;
 use App\Http\Controllers\API\PeminjamanController;
 use App\Http\Controllers\Api\PengembalianController;
+use App\Http\Controllers\Api\PengembalianApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,10 +30,9 @@ Route::get('/peminjaman', [PeminjamanController::class, 'index']);       // Semu
 Route::get('/peminjaman/user', [PeminjamanController::class, 'getByUser']);  // Peminjaman user login
 Route::post('/peminjaman', [PeminjamanController::class, 'store']);      // Buat peminjaman baru
 
-// Semua route peminjaman dengan middleware auth:sanctum (sesuaikan jika kamu pakai auth lain)
-Route::middleware('auth:sanctum')->group(function () {
-
-});
+Route::post('/pengembalian', [PengembalianApiController::class, 'store']);
+Route::get('/pengembalian/user', [PengembalianApiController::class, 'index']);
+// Route::post('/pengembalian', [PengembalianController::class, 'store']);
 
 
 

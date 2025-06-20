@@ -3,93 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function show ()
+    public function index()
     {
-        return view ('register');
+        $users = User::whereDoesntHave('roles', function ($query) {
+            $query->where('name', 'admin');
+        })->get();
+
+        return view('User.index', compact('users'));
     }
-    public function register(Request $request)
+
+    public function create()
+    {
+        return view('User.create');
+    }
+
+    public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'password' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6'
         ]);
 
-        // Membuat user baru
         $user = User::create([
             'name' => $request->name,
-            'password' => Hash::make($request->password),
-            'admin_id' => Auth::id(),  // Menyimpan id admin yang login
+            'email' => $request->email,
+            'password' => Hash::make($request->password)
         ]);
 
-        return redirect('/dashboard')->with('success', 'User berhasil ditambahkan!');
+        $user->assignRole('user');
+
+        return redirect()->route('user.index')->with('berhasil', 'Pengguna berhasil ditambahkan.');
     }
 
-    // login user
-    public function login(Request $request)
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        return view('User.edit', compact('user'));
+    }
+
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
-            'password' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6'
         ]);
 
-        $user = User::where('name', $request->name)->first();
+        $user = User::findOrFail($id);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-        $credentials = $request->only('name', 'password');
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $user->save();
 
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
-        ]);
-    }
-
-    public function datauser ()
-    {
-        $users = User::with(['admin'])->get(); // Tambah 'admin'
-        return view('datauser', compact('users'));
-    }
-
-    public function user (Request $request)
-    {
-        return response()->json($request->user());
-    }
-
-    public function tableakun() {
-        // Mengambil semua user
-        $users = User::all(); // Bisa menggunakan paginasi jika datanya banyak, misalnya User::paginate(10);
-
-        // Mengirim data ke view
-        return view('dashboard', compact('users'));
-    }
-
-    public function logout(Request $request)
-    {
-        $request->user()->tokens->each(function ($token) {
-            $token->delete();
-        });
-
-        return response()->json(['message' => 'Log out berhasil.']);
+        return redirect()->route('user.index')->with('berhasil', 'Pengguna berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
-        return redirect()->back()->with('success', 'Akun berhasil dihapus.');
+        $user = User::findOrFail($id);
+        
+        // Check if user has any active borrowings
+        $activeBorrowings = $user->peminjaman   ()
+            ->whereIn('status', ['menunggu', 'disetujui'])
+            ->exists();
+            
+        if ($activeBorrowings) {
+            return redirect()->route('user.index')
+                ->with('error', 'Pengguna tidak dapat dihapus karena masih memiliki peminjaman aktif.');
+        }
+        
+        $user->delete();
+
+        return redirect()->route('user.index')->with('berhasil', 'Pengguna berhasil dihapus.');
     }
 }

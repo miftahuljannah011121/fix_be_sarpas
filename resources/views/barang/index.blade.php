@@ -101,19 +101,19 @@
                             <td>{{ $barang->stok }}</td>
                             <td>{{ $barang->kategori->nama ?? '-' }}</td>
                             <td>
-    @if($barang->foto)
+                            @if($barang->foto)
     <img src="{{ asset('storage/' . $barang->foto) }}" alt="Foto Barang" class="img-thumbnail">
+@else
+    <span class="text-muted">Tidak ada foto</span>
+@endif
 
-    @else
-        <span class="text-muted">Tidak ada foto</span>
-    @endif
-</td>
+                            </td>
                             <td>
                                 <a href="{{ route('barang.edit', $barang) }}" class="btn btn-sm btn-warning me-1">
                                     Edit
                                 </a>
                                 <form action="{{ route('barang.destroy', $barang) }}" method="POST" class="d-inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus barang ini?');">
+                                      onsubmit="return confirm('Yakin ingin menghapus barang ini?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger">Hapus</button>

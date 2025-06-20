@@ -61,6 +61,9 @@
                     <a href="{{ route('dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
                         <i class="bi bi-speedometer2 me-2"></i> Dashboard
                     </a>
+                    <a href="{{ route('user.index') }}" class="{{ request()->is('user*') ? 'active' : '' }}">
+                        <i class="bi bi-person-circle"></i> User
+                    </a>
                     <a href="{{ route('kategori.index') }}" class="{{ request()->is('kategori*') ? 'active' : '' }}">
                         <i class="bi bi-tag me-2"></i> Kategori
                     </a>

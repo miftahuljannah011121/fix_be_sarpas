@@ -9,6 +9,7 @@ use App\Models\Barang;
 
 class PeminjamanController extends Controller
 {
+    // Simpan peminjaman dari user (stok belum dikurangi)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -25,25 +26,21 @@ class PeminjamanController extends Controller
 
         $barang = Barang::findOrFail($validated['barang_id']);
 
-        // Cek stok barang
+        // Cek stok cukup atau tidak, tapi jangan dikurangi di sini
         if ($barang->stok < $validated['jumlah']) {
             return response()->json([
                 'message' => 'Stok barang tidak mencukupi',
             ], 400);
         }
 
-        // Kurangi stok barang
-        $barang->stok -= $validated['jumlah'];
-        $barang->save();
-
-        // Simpan data peminjaman
+        // Simpan peminjaman (belum menyentuh stok barang)
         $peminjaman = Peminjaman::create($validated);
 
-        // Load relasi barang dan user agar lengkap saat response
+        // Load relasi untuk response
         $peminjaman->load(['barang', 'user']);
 
         return response()->json([
-            'message' => 'Peminjaman berhasil ditambahkan',
+            'message' => 'Peminjaman berhasil ditambahkan (menunggu persetujuan admin)',
             'data' => [
                 'id' => $peminjaman->id,
                 'nama_peminjam' => $peminjaman->nama_peminjam,
@@ -65,7 +62,7 @@ class PeminjamanController extends Controller
         ], 201);
     }
 
-    // Ambil data peminjaman user yang sedang login
+    // Ambil data peminjaman milik user yang sedang login
     public function getByUser(Request $request)
     {
         $user = $request->user();
@@ -74,12 +71,12 @@ class PeminjamanController extends Controller
             ->get();
 
         return response()->json([
-            'success' => true,
+           
             'data' => $peminjamans,
         ]);
     }
 
-    // Ambil semua data peminjaman (misal untuk admin)
+    // Ambil semua data peminjaman (misalnya untuk admin)
     public function index()
     {
         $peminjamans = Peminjaman::with(['barang', 'user'])->get();

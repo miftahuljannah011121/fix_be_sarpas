@@ -22,37 +22,6 @@
         background-color: rgb(255, 182, 232);
     }
 
-    .btn-success {
-        background-color: rgb(255, 0, 191);
-        color: #fff;
-        border: none;
-    }
-
-    .btn-success:hover {
-        background-color: rgb(220, 0, 160);
-    }
-
-    .btn-danger {
-        background-color: rgb(189, 2, 152);
-        color: #fff;
-        border: none;
-    }
-
-    .btn-danger:hover {
-        background-color: rgb(159, 1, 127);
-    }
-
-    .btn-warning {
-        background-color: rgb(255, 182, 232);
-        color: #5a0050;
-        border: none;
-    }
-
-    .btn-warning:hover {
-        background-color: rgb(219, 145, 191);
-        color: #3e0033;
-    }
-
     .alert-success {
         background-color: rgb(255, 182, 232);
         color: #5a0050;
@@ -61,11 +30,6 @@
     .alert-danger {
         background-color: rgb(220, 180, 210);
         color: #5a0050;
-    }
-
-    .badge-pink {
-        background-color: rgb(255, 0, 191);
-        color: white;
     }
 
     .badge-warning-custom {
@@ -111,8 +75,6 @@
                         <th>Jumlah Dikembalikan</th>
                         <th>Tanggal Pengembalian</th>
                         <th>Status</th>
-                        <th>Denda</th>
-                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -148,34 +110,11 @@
                                     {{ ucfirst($status == 'completed' ? 'Selesai' : ($status == 'pending' ? 'Menunggu' : 'Rusak')) }}
                                 </span>
                             </td>
-                            <td>
-                                @if($pengembalian->denda > 0)
-                                    <span class="text-danger">Rp {{ number_format($pengembalian->denda, 0, ',', '.') }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                @if($pengembalian->status_pengembalian == 'pending')
-                                    <form action="{{ route('pengembalian.approve', $pengembalian->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-success"
-                                            onclick="return confirm('Setujui pengembalian ini?')">Setujui</button>
-                                    </form>
-                                    <form action="{{ route('pengembalian.reject', $pengembalian->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Tolak pengembalian ini?')">Tolak</button>
-                                    </form>
-                                    <a href="{{ route('pengembalian.markDamage.form', $pengembalian->id) }}" 
-                                       class="btn btn-sm btn-warning mt-1">Tandai Rusak</a>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="9" class="text-center py-3 text-muted">Belum ada data pengembalian.</td></tr>
+                        <tr>
+                            <td colspan="7" class="text-center py-3 text-muted">Belum ada data pengembalian.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
