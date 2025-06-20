@@ -35,7 +35,7 @@ class PengembalianApiController extends Controller
             ], 400);
         }
 
-        if ($peminjaman->status !== 'disetujui') {
+        if ($peminjaman->status !== 'approved') {
             return response()->json([
                 'success' => false,
                 'message' => 'Peminjaman belum disetujui admin.'
@@ -103,7 +103,7 @@ class PengembalianApiController extends Controller
     public function getPeminjamanBelumDikembalikan()
     {
         $peminjamans = Peminjaman::with('barang')
-            ->where('status', 'disetujui')
+            ->where('status', 'approved')
             ->latest()
             ->get();
 

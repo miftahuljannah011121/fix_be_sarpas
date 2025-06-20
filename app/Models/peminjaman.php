@@ -37,4 +37,5 @@ public function pengembalian()
 {
     return $this->hasOne(Pengembalian::class);
 }
+
 }

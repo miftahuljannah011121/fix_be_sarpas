@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BarangController;
 use App\Http\Controllers\API\PeminjamanController;
-use App\Http\Controllers\Api\PengembalianController;
 use App\Http\Controllers\Api\PengembalianApiController;
 
 /*
@@ -32,6 +31,9 @@ Route::post('/peminjaman', [PeminjamanController::class, 'store']);      // Buat
 
 Route::post('/pengembalian', [PengembalianApiController::class, 'store']);
 Route::get('/pengembalian/user', [PengembalianApiController::class, 'index']);
+
+Route::get('/peminjaman/belum-dikembalikan/{user_id}', [PeminjamanController::class, 'belumDikembalikan']);
+
 // Route::post('/pengembalian', [PengembalianController::class, 'store']);
 
 

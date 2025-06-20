@@ -34,7 +34,7 @@ class PengembalianController extends Controller
 
     $barang = $peminjaman->barang;
     if ($barang) {
-        $barang->increment('jumlah', $pengembalian->jumlah);
+        $barang->increment('stok', $pengembalian->jumlah);
     }
 
     return redirect()->route('pengembalian.index')->with('success', 'Pengembalian berhasil disetujui.');
@@ -80,11 +80,11 @@ public function reject($id)
     ]);
 
     $peminjaman = $pengembalian->peminjaman;
-    $peminjaman->update(['status' => 'dikembalikan']);  // ganti dari 'rejected'
+    $peminjaman->update(['status' => 'returned']);  // ganti dari 'rejected'
 
     $barang = $peminjaman->barang;
     if ($barang) {
-        $barang->increment('jumlah', $pengembalian->jumlah);
+        $barang->increment('stok', $pengembalian->jumlah);
     }
 
     return redirect()->route('pengembalian.index')->with('success', 'Denda pengembalian rusak berhasil diperbarui.');

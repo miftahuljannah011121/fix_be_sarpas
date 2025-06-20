@@ -76,6 +76,21 @@ class PeminjamanController extends Controller
         ]);
     }
 
+    // Ambil daftar peminjaman user yang belum dikembalikan dan disetujui
+public function belumDikembalikan($user_id)
+{
+    $peminjamans = Peminjaman::with('barang')
+        ->where('user_id', $user_id)
+        ->where('status', 'approved') // hanya yang sudah disetujui
+        ->whereDoesntHave('pengembalian') // belum dikembalikan
+        ->get();
+
+    return response()->json([
+        'data' => $peminjamans,
+    ]);
+}
+
+
     // Ambil semua data peminjaman (misalnya untuk admin)
     public function index()
     {
